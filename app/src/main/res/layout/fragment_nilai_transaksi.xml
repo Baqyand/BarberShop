@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.beranda.NilaiTransaksiFragment">
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/Birutua"
+            android:orientation="vertical"
+            android:paddingTop="25dp"
+            android:paddingRight="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="32dp"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:text="Nilai Transaksi"
+                android:textAlignment="center"
+                android:textColor="@color/Putih"
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/tv_transaksi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rp300.000"
+                android:textAlignment="center"
+                android:textColor="@color/Putih"
+                android:textSize="30dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+        </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/home_background"
+                android:orientation="vertical"
+                android:layout_marginTop="150dp"
+                android:paddingLeft="30dp"
+                android:paddingTop="33dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Pelanggan Hari Ini"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/Birutua"
+                        android:textStyle="bold"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/jml"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="20dp"
+                        android:gravity="end"
+                        android:text="Jumlah Transaksi"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textSize="12sp"
+                        android:textColor="@color/Abukurang" />
+                </RelativeLayout>
+
+
+                <RelativeLayout
+                    android:id="@+id/rl_a"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        >
+
+
+
+                    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                        android:id="@+id/segarkan"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvpdp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginTop="20dp"
+                        android:padding="10dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        tools:listitem="@layout/item_transaksi" />
+                    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                    </LinearLayout>
+                    <Button
+                        android:id="@id/tv_closing"
+                        android:layout_width="311dp"
+                        android:layout_height="70dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="350dp"
+                        android:background="@drawable/btnclose_background"
+                        android:elevation="10dp"
+                        android:gravity="center"
+                        android:text="Close"
+                        android:textColor="@color/Putih"
+                        android:textStyle="bold"
+                        tools:ignore="UnusedAttribute" />
+
+                </RelativeLayout>
+
+
+
+            </LinearLayout>
+    
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

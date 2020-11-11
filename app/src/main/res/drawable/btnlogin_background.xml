@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <corners
+        android:topLeftRadius="20dp"
+        android:topRightRadius="20dp"
+        android:bottomLeftRadius="20dp"
+        android:bottomRightRadius="20dp"/>
+
+    <padding
+        android:left="14dp"
+        android:top="14dp"
+        android:bottom="14dp"
+        android:right="14dp"/>
+    <solid
+        android:color="@color/Birutua"/>
+    <size
+        android:width="306.49dp"
+        android:height="68dp"/>
+</shape>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+        <padding
+            android:left="14dp"
+            android:top="14dp"
+            android:bottom="14dp"
+            android:right="14dp"/>
+        <solid
+            android:color="@color/Abutua"/>
+        <size
+            android:height="187dp"
+            android:width="311dp"/>
+
+    <corners
+        android:radius="50dp"/>
+
+    </shape>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#14213D</color>
+    <color name="colorPrimaryDark">#14213D</color>
+    <color name="colorAccent">#37425A</color>
+    <color name="Birutua">#14213D</color>
+    <color name="Putih">#FFFFFF</color>
+    <color name="AbuPutih">#EEEEEE</color>
+    <color name="Abu029">#00000029</color>
+    <color name="Abutua">#37425A</color>
+    <color name="AbulumayanTua">#14213D91</color>
+    <color name="Hitam">#000000</color>
+    <color name="Abulumayan">#B0B0B0</color>
+    <color name="Abukurang">#707070</color>
+    <color name="Blue">#3065D8</color>
+</resources>
