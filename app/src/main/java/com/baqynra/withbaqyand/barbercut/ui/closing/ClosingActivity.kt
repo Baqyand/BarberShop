@@ -16,6 +16,8 @@ class ClosingActivity : AppCompatActivity() {
         btn1.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+            finishAffinity()
         }
+
     }
 }

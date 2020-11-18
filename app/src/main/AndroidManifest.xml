@@ -4,8 +4,9 @@
     package="com.baqynra.withbaqyand.barbercut">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -23,11 +24,16 @@
         </activity>
         <activity android:name=".ui.closing.ClosingActivity" />
         <activity android:name=".ui.struk.PaketActivity" >
+
+
         </activity>
         <activity android:name=".takterpakai.NilaiTransaksiActivity" >
 
         </activity>
-        <activity android:name=".ui.struk.StrukActivity" />
+        <activity android:name=".ui.struk.StrukActivity" >
+
+
+        </activity>
         <activity android:name=".ui.login.LoginActivity">
 
         </activity>

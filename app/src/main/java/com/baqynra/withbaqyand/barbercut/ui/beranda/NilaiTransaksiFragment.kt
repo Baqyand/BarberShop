@@ -30,6 +30,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.lang.reflect.Type
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class NilaiTransaksiFragment : Fragment() {
@@ -71,9 +73,11 @@ class NilaiTransaksiFragment : Fragment() {
             val intent = Intent(context!!, ClosingActivity::class.java)
             startActivity(intent)
         }
+        val currentDate: String =
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        segarkan.setOnRefreshListener { getdata("2020-10-12","TESBRB01") }
-        getdata("2020-10-12","TESBRB01")
+        segarkan.setOnRefreshListener { getdata(currentDate,"TESBRB01") }
+        getdata(currentDate,"TESBRB01")
 
     }
     fun getdata(tanggal:String,kodeBarber:String){

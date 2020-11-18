@@ -5,13 +5,6 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.beranda.NilaiTransaksiFragment">
-    <FrameLayout
-        android:id="@+id/frame_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -81,13 +74,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:text="Pilih Paket"
                 android:textColor="@color/Birutua"
                 android:fontFamily="@font/poppins_bold"
                 android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/scan_bluetooth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="14dp"
+                android:drawableStart="@drawable/ic_print_black_24dp"
+                android:text="Terhubung" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -137,7 +140,7 @@
                                 android:layout_marginTop="35dp"
                                 android:layout_marginStart="21dp"
                                 android:layout_marginBottom="9dp"
-                                android:text="Potong \nanak"
+                                android:text="Cukur \nanak"
                                 android:textColor="@color/Birutua"
                                 android:fontFamily="@font/poppins_bold"
                                 />
@@ -193,7 +196,7 @@
                                 android:layout_marginTop="35dp"
                                 android:layout_marginStart="21dp"
                                 android:layout_marginBottom="9dp"
-                                android:text="Potong \nDewasa"
+                                android:text="Cukur \nDewasa"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/Birutua"
                                 />

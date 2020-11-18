@@ -32,6 +32,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.lang.reflect.Type
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class PendapatanFragment : Fragment() {
@@ -84,6 +86,8 @@ class PendapatanFragment : Fragment() {
 //        dataArray.add(DataTransaksi("laporan","2039102","RP.50000"))
 //        dataArray.add(DataTransaksi("iuran","1231321","RP. 25000"))
 //        dataAdapter.addData(dataArray)
+        val currentDate: String =
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
 
         tv_closing.setOnClickListener {
@@ -97,8 +101,8 @@ class PendapatanFragment : Fragment() {
             val go = Intent(context, PaketActivity::class.java)
             startActivity(go)
         }
-        refresh.setOnRefreshListener { getdata("2020-10-12","TESBRB01") }
-        getdata("2020-10-12","TESBRB01")
+        refresh.setOnRefreshListener { getdata(currentDate,"TESBRB01") }
+        getdata(currentDate,"TESBRB01")
         initdata()
     }
     override fun onPause() {

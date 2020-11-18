@@ -15,6 +15,7 @@ class StrukActivity : AppCompatActivity() {
         btn_selesaistruk.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+            finishAffinity()
         }
     }
 }
