@@ -164,6 +164,10 @@ class NilaiTransaksiFragment : Fragment() {
                 } else if (response.code() == 405) {
                     Toast.makeText(context, "Method Tidak diterima server", Toast.LENGTH_SHORT)
                         .show()
+                    val intent = Intent(context, LoginActivity::class.java)
+                    startActivity(intent)
+                    PendapatanFragment.preferences.preferencesLogout()
+                    activity?.finish()
                     myview.segarkan.isRefreshing = false
                 }
             }

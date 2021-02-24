@@ -1,16 +1,26 @@
 package com.baqynra.withbaqyand.barbercut.ui.struk
 
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.content.IntentFilter
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.baqynra.withbaqyand.barbercut.Library
+import com.baqynra.withbaqyand.barbercut.Preferences
 import com.baqynra.withbaqyand.barbercut.R
+import com.baqynra.withbaqyand.barbercut.adapter.PaketAdapter
+import com.baqynra.withbaqyand.barbercut.apihelper.ApiClient
+import com.baqynra.withbaqyand.barbercut.model.Datalocal
 import com.baqynra.withbaqyand.barbercut.model.Paketpass
-import com.baqynra.withbaqyand.barbercut.ui.beranda.MainActivity
-import com.google.android.material.snackbar.Snackbar
+import com.baqynra.withbaqyand.barbercut.ui.login.LoginActivity
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.mazenrashed.printooth.Printooth
 import com.mazenrashed.printooth.data.printable.Printable
 import com.mazenrashed.printooth.data.printable.RawPrintable
@@ -20,184 +30,103 @@ import com.mazenrashed.printooth.ui.ScanningActivity
 import com.mazenrashed.printooth.utilities.Printing
 import com.mazenrashed.printooth.utilities.PrintingCallback
 import kotlinx.android.synthetic.main.activity_paket.*
+import okhttp3.ResponseBody
+import org.json.JSONArray
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.lang.reflect.Type
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.log
 
 class PaketActivity : AppCompatActivity(), PrintingCallback {
-    var parameterbtn1=0
-    var parameterbtn2=0
-    var parameterbtn3=0
-    var parameterbtn4=0
+
     companion object{
-        val dataarr = arrayListOf<Paketpass>()
-//        var harga = 0
+        val dataarr = mutableListOf<Datalocal>()
+        var param = 0
+        var harga = 0
         var totalnya = 0
+        var nik: String? = null
+        var nama: String? = null
+        var lokasi: String? = null
+        var no_hp: String? = null
+        val preferences = Preferences()
         val library = Library()
+        var nocust:String? = null
+        var kode: String? = null
+        private lateinit var adapter : PaketAdapter
         internal var printing: Printing? = null
-//        var namapaket:String? = null
+        var namapaket:String? = null
+        val tanggal: String =
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_paket)
         Printooth.init(this)
+        preferences.setPreferences(this)
+
+        nik = preferences.getNik()
+        nama = preferences.getName()
+        lokasi = preferences.getLock()
+        no_hp = preferences.getNoHp()
 
 
+//        val getShared = getSharedPreferences("BARBERCUT", MODE_PRIVATE)
+
+
+
+        
+        adapter = PaketAdapter(this)
+        rv_paket.layoutManager  = GridLayoutManager(this, 2)
+        rv_paket.adapter = adapter
+        refresh.setOnRefreshListener { getdata() }
+//        getbukti(tanggal)
+        getNoCust()
+        getdata()
         initview()
-        inivisible()
+//        inivisible()
         total.text = library.toRupiah(totalnya)
-
-//        dataarr.add(Paketpass("Cukur anak", 12000))
-//        dataarr.add(Paketpass("Cukur Dewasa", 15000))
-//        dataarr.add(Paketpass("Cuci Rambut", 3000))
-//        dataarr.add(Paketpass("Cukur jenggot", 5000))
-//        dataarr.size
-
-
-
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
     override fun onResume() {
         super.onResume()
-        totalnya=0
-        parameterbtn1=0
-        parameterbtn2=0
-        parameterbtn3=0
-        parameterbtn4=0
-        total.text = library.toRupiah(totalnya)
-        dataarr.clear()
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+            mMessegeReceiver,
+            IntentFilter("struk")
+        )
     }
 
-    private fun inivisible() {
-        btn1.setOnClickListener{
-            if(collapsible.visibility== View.GONE){
-                collapsible.visibility= View.VISIBLE
-                plus.setOnClickListener {
-                    if(totalnya>99999999){
-                        Snackbar.make(findViewById(android.R.id.content), "Nilai tidak boleh melebihi batas maksimum.", Snackbar.LENGTH_SHORT).show()
-                        totalnya = 99999999
-                        total.setText(library.toRupiah(totalnya))
+    override fun onPause() {
+        super.onPause()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessegeReceiver)
+    }
 
-//                total_bayar.setSelection(total_bayar.length())
-                    }else{
-                        dataarr.add(Paketpass("Cukur anak", 12000))
-                        totalnya +=12000
-                        parameterbtn1+=1
-                        total.setText(library.toRupiah(totalnya))
-                    }
-                }
-                minus.setOnClickListener {
-                    if(parameterbtn1 >=1 ){
-                        if(totalnya>0)
-                            totalnya-=12000
-                        parameterbtn1 -=1
-                        dataarr.removeLast()
-                        total.setText(library.toRupiah(totalnya))
-                    }
+    private val mMessegeReceiver: BroadcastReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if(intent!!.hasExtra("total")){
+                //TODO:  data array++ || --, pembanding add, upload api,
+                totalnya = intent.getIntExtra("total", 0)
+                namapaket = intent.getStringExtra("nama_paket")!!
+                kode = intent.getStringExtra("kode")!!
+                harga = intent.getIntExtra("harga", 0)
+                param = intent.getIntExtra("unit", 0)
 
+                if (intent.getStringExtra("param") == "add"){
+                    dataarr.add(Datalocal(namapaket, kode, harga))
                 }
-            }else{
-                collapsible.visibility= View.GONE
-            }
-        }
-
-        btn2.setOnClickListener{
-            if(a.visibility== View.GONE){
-                a.visibility= View.VISIBLE
-                ples.setOnClickListener {
-                    if(totalnya>99999999){
-                        Snackbar.make(findViewById(android.R.id.content), "Nilai tidak boleh melebihi batas maksimum.", Snackbar.LENGTH_SHORT).show()
-                        totalnya= 99999999
-                        total.setText(library.toRupiah(totalnya))
-//                total_bayar.setSelection(total_bayar.length())
-                    }else{
-                        dataarr.add(Paketpass("Cukur Dewasa", 15000))
-                        totalnya+=15000
-                        parameterbtn2 +=1
-                        total.setText(library.toRupiah(totalnya))
-                    }
-                }
-                min.setOnClickListener {
-                    if (parameterbtn2 >=1 ) {
-                        if (totalnya > 0)
-                            totalnya -= 15000
-                        parameterbtn2 -= 1
-                        dataarr.removeLast()
-                        total.setText(library.toRupiah(totalnya))
-                    }
-
-                }
-            }else{
-                a.visibility= View.GONE
-            }
-
-        }
-        btn3.setOnClickListener{
-            if(b.visibility== View.GONE){
-                b.visibility= View.VISIBLE
-            }else{
-                b.visibility= View.GONE
-            }
-            tambah.setOnClickListener {
-                if(totalnya>99999999){
-                    Snackbar.make(findViewById(android.R.id.content), "Nilai tidak boleh melebihi batas maksimum.", Snackbar.LENGTH_SHORT).show()
-                    totalnya= 99999999
-                    total.setText(library.toRupiah(totalnya))
-//                total_bayar.setSelection(total_bayar.length())
-                }else{
-                    dataarr.add(Paketpass("Cuci Rambut", 3000))
-                    totalnya += 3000
-                    parameterbtn3 += 1
-                    total.setText(library.toRupiah(totalnya))
-                }
-            }
-            kurang.setOnClickListener {
-                if (parameterbtn3 >=1 )
-                if(totalnya>0)
-                    totalnya-=3000
-                    parameterbtn3 -= 1
-//                unit--
-                total.setText(library.toRupiah(totalnya))
-            }
-        }
-        btn4.setOnClickListener{
-
-            if(c.visibility== View.GONE){
-                c.visibility= View.VISIBLE
-            }else{
-                c.visibility= View.GONE
-            }
-            positif.setOnClickListener {
-                if(totalnya>99999999){
-                    Snackbar.make(findViewById(android.R.id.content), "Nilai tidak boleh melebihi batas maksimum.", Snackbar.LENGTH_SHORT).show()
-                    totalnya= 99999999
-                    total.setText(library.toRupiah(totalnya))
-//                total_bayar.setSelection(total_bayar.length())
-                }else{
-                    dataarr.add(Paketpass("Cukur jenggot", 5000))
-                    totalnya+=5000
-                    parameterbtn4 += 1
-                    total.setText(library.toRupiah(totalnya))
-                }
-            }
-            negatif.setOnClickListener {
-                if (parameterbtn4 >= 1){
-                    if(totalnya>0)
-                        totalnya-=5000
-                        parameterbtn4 -= 1
-                    dataarr.removeLast()
-                    total.setText(library.toRupiah(totalnya))
+                else{
+                    dataarr.removeAt(0)
                 }
 
+                Toast.makeText(this@PaketActivity, "struk trigger", Toast.LENGTH_SHORT).show()
+                total.text = library.toRupiah(totalnya)
             }
         }
     }
-
     private fun initview() {
         if ( printing != null){
             printing!!.printingCallback = this
@@ -211,14 +140,18 @@ class PaketActivity : AppCompatActivity(), PrintingCallback {
                     Printooth.removeCurrentPrinter()
                 }
                 else{
-                    Toast.makeText(this,"Harap tunggu sampai scan selesai",Toast.LENGTH_LONG).show()
-                    startActivityForResult(Intent( this@PaketActivity, ScanningActivity::class.java),
-                        ScanningActivity.SCANNING_FOR_PRINTER)
+                    Toast.makeText(this, "Harap tunggu sampai scan selesai", Toast.LENGTH_LONG).show()
+                    startActivityForResult(
+                        Intent(this@PaketActivity, ScanningActivity::class.java),
+                        ScanningActivity.SCANNING_FOR_PRINTER
+                    )
                     changePairAndUnpair()
                 }
         }
         buttoncetak.setOnClickListener {
-            printText()
+            postdata(nik!!, nocust!!, nama!!, lokasi!!, no_hp!!, totalnya, 0, kode!!, tanggal, "TESBRB01")
+            Log.e("cek", "$nik + $nama + $lokasi + $no_hp , $nocust, $totalnya, 0, $kode, $tanggal, $namapaket")
+//            printText()
         }
     }
 
@@ -233,7 +166,7 @@ class PaketActivity : AppCompatActivity(), PrintingCallback {
 
     private fun printText() {
         val printables = ArrayList<Printable>()
-        printables.add(RawPrintable.Builder(byteArrayOf(27,100,2)).build())
+        printables.add(RawPrintable.Builder(byteArrayOf(27, 100, 2)).build())
 //        byteArrayOf(27,100,4)
         //add text
 //        printables.add(TextPrintable.Builder()
@@ -249,7 +182,8 @@ class PaketActivity : AppCompatActivity(), PrintingCallback {
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setEmphasizedMode(DefaultPrinter.EMPHASIZED_MODE_BOLD)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
 
         printables.add(
             TextPrintable.Builder()
@@ -257,20 +191,23 @@ class PaketActivity : AppCompatActivity(), PrintingCallback {
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setEmphasizedMode(DefaultPrinter.EMPHASIZED_MODE_BOLD)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
         printables.add(
             TextPrintable.Builder()
                 .setText("Barber Cut ")
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setEmphasizedMode(DefaultPrinter.EMPHASIZED_MODE_BOLD)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
         printables.add(
             TextPrintable.Builder()
                 .setText("==============================")
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
         val currentDate: String =
             SimpleDateFormat("dd-MM-yyyy, HH:mm:ss", Locale.getDefault()).format(Date())
         printables.add(
@@ -278,36 +215,75 @@ class PaketActivity : AppCompatActivity(), PrintingCallback {
                 .setText(currentDate)
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
         printables.add(
             TextPrintable.Builder()
                 .setText(" ")
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
+//        printables.add(
+//            TextPrintable.Builder()
+//                .setText(" ${getbukti(currentDate)} $data")
+//                .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
+//                .setNewLinesAfter(1)
+//                .build())
         printables.add(
             TextPrintable.Builder()
                 .setText("Nama Paket :  ")
                 .setAlignment(DefaultPrinter.ALIGNMENT_LEFT)
                 .setNewLinesAfter(1)
-                .build())
-        for(data in dataarr){
+                .build()
+        )
 
-//            Log.e("paket", data.toString())
+        printables.add(
+            TextPrintable.Builder()
+                .setText(" ")
+                .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
+                .setNewLinesAfter(1)
+                .build()
+        )
+
+        for (i in 0 until dataarr.size - 1){
+            val current = dataarr [i]
+            var j = i + 1
+            while (j <= dataarr.size - 1){
+                val compare = dataarr[j]
+                if (current.nama_paket!!.equals(compare.nama_paket) && current.kode!!.equals(compare.kode)){
+                    current.harga = current.harga + compare.harga
+                    dataarr.remove(compare)
+                    j--
+                }
+                j++
+            }
+        }
+
+        for (data in dataarr) {
             printables.add(
                 TextPrintable.Builder()
-                    .setText(" ${data.paket} ")
+                    .setText("${data.nama_paket}  Jumlah $param")
                     .setEmphasizedMode(DefaultPrinter.EMPHASIZED_MODE_BOLD)
                     .setAlignment(DefaultPrinter.ALIGNMENT_LEFT)
                     .setNewLinesAfter(1)
-                    .build())
+                    .build()
+            )
             printables.add(
                 TextPrintable.Builder()
-                    .setText(" ${ library.toRupiah(data.harga)}")
-                    .setAlignment(DefaultPrinter.ALIGNMENT_LEFT)
-//                    .setFontSize(DefaultPrinter.)
+                    .setText(" ")
+                    .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                     .setNewLinesAfter(1)
-                    .build())
+                    .build()
+            )
+            printables.add(
+                TextPrintable.Builder()
+                    .setText("${library.toRupiah(data.harga)}")
+                    .setAlignment(DefaultPrinter.ALIGNMENT_LEFT)
+//              .setFontSize(DefaultPrinter.)
+                    .setNewLinesAfter(1)
+                    .build()
+            )
         }
 
         printables.add(
@@ -315,19 +291,22 @@ class PaketActivity : AppCompatActivity(), PrintingCallback {
                 .setText(" ")
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
         printables.add(
             TextPrintable.Builder()
                 .setText("==============================")
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
         printables.add(
             TextPrintable.Builder()
                 .setText(" ")
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
 
             printables.add(
                 TextPrintable.Builder()
@@ -342,18 +321,18 @@ class PaketActivity : AppCompatActivity(), PrintingCallback {
                 .setText("\n ")
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
         printables.add(
             TextPrintable.Builder()
                 .setText(" ")
                 .setAlignment(DefaultPrinter.ALIGNMENT_CENTER)
                 .setNewLinesAfter(1)
-                .build())
+                .build()
+        )
 
         printing?.print(printables)
     }
-
-
 
 
     override fun connectingWithPrinter() {
@@ -374,6 +353,7 @@ class PaketActivity : AppCompatActivity(), PrintingCallback {
 
     override fun printingOrderSentSuccessfully() {
         Toast.makeText(this, "Sent to Printer ", Toast.LENGTH_SHORT).show()
+
         val intent = Intent(this@PaketActivity, StrukActivity::class.java)
         startActivity(intent)
     }
@@ -393,5 +373,137 @@ class PaketActivity : AppCompatActivity(), PrintingCallback {
             printing!!.printingCallback = this
 
     }
-}
+    fun getdata(){
+        val apiClient = ApiClient().getApiService(this)
+        apiClient?.paket()?.enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    if (response.body() != null) {
+                        try {
+                            val obj = JSONObject(response.body()!!.string())
+                            val gson = Gson()
+//                            val myobj: JSONArray? = obj.optJSONArray("data")
+                            val type: Type = object : TypeToken<MutableList<Paketpass>>() {}.type
+                            val data: MutableList<Paketpass> = gson.fromJson(
+                                obj.optString("data"), type
+                            )
+                            adapter.initData(data)
 
+//                            dataAdapter.clearData()
+//                                        obj.optString("2020-10-12"), obj.optString("TESBRB01")
+                        } catch (e: Exception) {
+                            e.stackTrace
+                        }
+                    }
+
+                } else if (response.code() == 401) {
+                    startActivity(Intent(this@PaketActivity, LoginActivity::class.java))
+                    Toast.makeText(
+                        this@PaketActivity,
+                        "Alangkah Baiknya Login dulu",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Toast.makeText(this@PaketActivity, "Ada Kesalahan", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+    fun getNoCust(){
+        val apiClient = ApiClient().getApiService(this)
+        apiClient?.cust()?.enqueue(object  : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful){
+                    if(response.body() != null){
+                        try {
+                            val obj = JSONObject(response.body()!!.string())
+                            val myobj = JSONArray(obj.optString("data"))
+                            for (counter in 0 until myobj.length()){
+                                val jsonObject = myobj.getJSONObject(counter)
+                                nocust = jsonObject.optString("kode_cust")
+                            }
+
+                        }catch (e : Exception){
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Toast.makeText(this@PaketActivity, "Ada permasalahan ", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+
+
+// mendapatkan bukti
+    fun getbukti(tanggal: String){
+        val apidata = ApiClient().getApiService(this)
+        apidata?.nobukti(tanggal)?.enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    if (response.body() != null) {
+                        try {
+                            val obj = JSONObject(response.body()!!.string())
+                            val myobj = obj.optJSONObject("success")
+                            val data = myobj.optString("data")
+
+//                            nocust = data
+
+
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Toast.makeText(this@PaketActivity, "Ada permasalahan ", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+// post ke api
+    fun postdata(
+    nik_user: String,
+    kode_cust: String,
+    nama: String,
+    alamat: String,
+    no_hp: String,
+    nilai: Int,
+    diskon: Int,
+    kode_paket: String,
+    tanggal: String,
+    kode_barber:String
+){
+        val apiClient = ApiClient().getApiService(this)
+        apiClient?.kunj(nik_user, kode_cust, nama, alamat, no_hp, kode_paket, nilai, diskon,tanggal, kode_barber )?.enqueue(
+            object : Callback<ResponseBody> {
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    if (response.isSuccessful) {
+                        if (response.body() != null) {
+                            try {
+                                val obj = JSONObject(response.body()!!.string())
+                            } catch (e: Exception) {
+                                e.stackTrace
+                            }
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    //TODO("Not yet implemented")
+                }
+
+            })
+    }
+}

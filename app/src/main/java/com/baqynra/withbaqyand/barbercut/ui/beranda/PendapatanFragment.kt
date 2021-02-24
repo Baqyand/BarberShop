@@ -18,6 +18,7 @@ import com.baqynra.withbaqyand.barbercut.R
 import com.baqynra.withbaqyand.barbercut.adapter.PendapatanAdapter
 import com.baqynra.withbaqyand.barbercut.apihelper.ApiClient
 import com.baqynra.withbaqyand.barbercut.apihelper.ApiDuo
+import com.baqynra.withbaqyand.barbercut.model.DataBukti
 import com.baqynra.withbaqyand.barbercut.model.DataTransaksi
 import com.baqynra.withbaqyand.barbercut.ui.login.LoginActivity
 import com.baqynra.withbaqyand.barbercut.ui.struk.PaketActivity
@@ -100,9 +101,10 @@ class PendapatanFragment : Fragment() {
         card.setOnClickListener {
             val go = Intent(context, PaketActivity::class.java)
             startActivity(go)
+//           getbukti(currentDate)
         }
-        refresh.setOnRefreshListener { getdata(currentDate,"TESBRB01") }
-        getdata(currentDate,"TESBRB01")
+        refresh.setOnRefreshListener { getdata("$currentDate","TESBRB01") }
+        getdata("$currentDate","TESBRB01")
         initdata()
     }
     override fun onPause() {
@@ -160,7 +162,6 @@ class PendapatanFragment : Fragment() {
                                     } else {
                                         rvpdp.visibility = View.VISIBLE
                                     }
-
                                 }
                             })
 //                            dataAdapter.clearData()
@@ -197,6 +198,10 @@ class PendapatanFragment : Fragment() {
                 } else if (response.code() == 405) {
                     Toast.makeText(context, "Method Tidak diterima server", Toast.LENGTH_SHORT)
                         .show()
+                    val intent = Intent(context, LoginActivity::class.java)
+                    startActivity(intent)
+                    preferences.preferencesLogout()
+                    activity?.finish()
                     myview.refresh.isRefreshing = false
                 }
             }
@@ -222,6 +227,10 @@ class PendapatanFragment : Fragment() {
                                 val jsonObject = data.getJSONObject(counter)
                                 name = jsonObject.optString("nama")
                                 barber = jsonObject.optString("nmlok")
+                                preferences.savenik(jsonObject.optString("nik"))
+                                preferences.saveNoHp(jsonObject.optString("no_telp"))
+                                preferences.savename(jsonObject.optString("nama"))
+                                preferences.savelock(jsonObject.optString("kode_lokasi"))
 
                             }
                             tv_nama.text = name
@@ -233,6 +242,33 @@ class PendapatanFragment : Fragment() {
                                 .show()
                         }
                     }
+                }else if (response.code() == 422) {
+                    Toast.makeText(context, "Terjadi kesalahan", Toast.LENGTH_SHORT).show()
+                    myview.refresh.isRefreshing = false
+                } else if (response.code() == 401) {
+                    val intent = Intent(context, LoginActivity::class.java)
+                    startActivity(intent)
+                    preferences.preferencesLogout()
+                    activity?.finish()
+                    Toast.makeText(
+                        context,
+                        "Sesi telah berakhir, silahkan login kembali",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else if (response.code() == 403) {
+                    Toast.makeText(context, "Unauthorized", Toast.LENGTH_SHORT).show()
+                    myview.refresh.isRefreshing = false
+                } else if (response.code() == 404) {
+                    Toast.makeText(context, "Terjadi kesalahan server", Toast.LENGTH_SHORT).show()
+                    myview.refresh.isRefreshing = false
+                } else if (response.code() == 405) {
+                    Toast.makeText(context, "Method Tidak diterima server", Toast.LENGTH_SHORT)
+                        .show()
+                    val intent = Intent(context, LoginActivity::class.java)
+                    startActivity(intent)
+                    preferences.preferencesLogout()
+                    activity?.finish()
+                    myview.refresh.isRefreshing = false
                 }
             }
 

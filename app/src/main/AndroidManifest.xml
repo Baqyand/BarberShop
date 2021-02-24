@@ -25,7 +25,6 @@
         <activity android:name=".ui.closing.ClosingActivity" />
         <activity android:name=".ui.struk.PaketActivity" >
 
-
         </activity>
         <activity android:name=".takterpakai.NilaiTransaksiActivity" >
 

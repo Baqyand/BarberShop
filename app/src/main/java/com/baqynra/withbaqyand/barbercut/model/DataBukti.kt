@@ -1,4 +1,5 @@
 package com.baqynra.withbaqyand.barbercut.model
 
-class DataBukti {
-}
+data class DataBukti (
+    val tanggal: String
+)

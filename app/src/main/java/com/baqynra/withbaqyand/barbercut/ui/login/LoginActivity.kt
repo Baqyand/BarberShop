@@ -44,7 +44,7 @@ class LoginActivity : AppCompatActivity() {
                             preferences.saveToken(obj.optString("token"))
                             preferences.saveExpires(obj.optString("expires"))
                             preferences.saveTokenType(obj.optString("token_type"))
-                            preferences.saveNoHp(id)
+
                             preferences.saveLogStatus(true)
 
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
